@@ -1,0 +1,27 @@
+
+#include "header.h"
+
+IDB_PLAYER BITMAP "kal.bmp"
+IDB_PLAYER_MASK BITMAP "kal_mask.bmp"
+IDB_CPU1 BITMAP "chander.bmp"
+IDB_CPU1_MASK BITMAP "chander_mask.bmp"
+IDB_CPU2 BITMAP "dave.bmp"
+IDB_CPU2_MASK BITMAP "dave_mask.bmp"
+IDB_MISSILEDOWN BITMAP "missiledown.bmp"
+IDB_MISSILEDOWN_MASK BITMAP "missiledown_mask.bmp"
+IDB_MISSILEUP BITMAP "missileup.bmp"
+IDB_MISSILEUP_MASK BITMAP "missileup_mask.bmp"
+
+IDB_DANCERLEFT BITMAP "samleft.bmp"
+IDB_DANCERRIGHT BITMAP "samright.bmp"
+IDB_DANCERLEFT_MASK BITMAP "samleft_mask.bmp"
+IDB_DANCERRIGHT_MASK BITMAP "samright_mask.bmp"
+
+IDB_REDBUTTON BITMAP "redbutton.bmp"
+
+IDB_COMMENT2 BITMAP "dcomment.bmp"
+IDB_COMMENT2_MASK BITMAP "dcomment_mask.bmp"
+IDB_COMMENT1 BITMAP "ccomment.bmp"
+IDB_COMMENT1_MASK BITMAP "ccomment_mask.bmp"
+IDB_PCOMMENT BITMAP "kcomment.bmp"
+IDB_PCOMMENT_MASK BITMAP "kcomment_mask.bmp"
