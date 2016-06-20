@@ -1,0 +1,45 @@
+<canvas id="myCanvas" width="800" height="400">
+</canvas>
+
+<script>
+
+var drawCircle = function(centerX, centerY, radius, ctx) {
+    for (var y = 0, x = radius; y <= radius; ) {
+        ctx.fillRect(centerX + x, centerY - y, 1, 1);
+        ctx.fillRect(centerX - x, centerY - y, 1, 1);
+        ctx.fillRect(centerX + x, centerY + y, 1, 1);
+        ctx.fillRect(centerX - x, centerY + y, 1, 1);
+       
+        x*x > (radius*radius) - (y*y) ? x-- : y++;
+    }
+}
+
+var drawCircle2 = function(centerX, centerY, radius, ctx) {
+    ctx.beginPath();
+    ctx.moveTo(centerX + radius, centerY);
+    
+    var sqrt_map = {};
+    var sqrt_trunc = (num) => {
+        if (sqrt_map[num]) return sqrt_map[num];
+        for(var res = 1; res*res <= num; res++);
+        return (sqrt_map[num] = res-1);
+    };
+
+    for (var y = 0, x = radius; x >= -radius; x--) {
+        y = sqrt_trunc((radius*radius) - (x*x));
+        ctx.lineTo(centerX + x, centerY - y);
+    }
+
+    for (var y = 0, x = -radius; x <= radius; x++) {
+        y = sqrt_trunc((radius*radius) - (x*x));
+        ctx.lineTo(centerX + x, centerY + y);        
+    }
+
+    ctx.stroke();
+}
+
+
+var c = document.getElementById("myCanvas");
+drawCircle2(200, 200, 100, c.getContext("2d"));
+drawCircle(600, 200, 100, c.getContext("2d"));
+</script>
