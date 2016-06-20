@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+input[type=text] {
+	width: 50px;
+}
+
+canvas {
+	border: solid black 1px;
+	position: absolute;
+}
+
+</style>
+
+<script>
+var myCanvas, moveLeft = false, moveRight = false, jump = false, processing = false, oneFrameTime = 1000.0 / 60.0,
+	positionInterval = 0, loopInterval = 0;
+	
+function Background(options) {
+	this.width = options.width;
+	this.height = options.height;
+	this.skyColor = options.skyColor;
+	this.groundColor = options.groundColor;
+	this.groundHeight = options.groundHeight;
+	this.postColor = options.postColor;
+	this.postWidth = options.postWidth;
+	this.postHeight = options.postHeight;
+	this.ctx = options.ctx;
+	this.backgroundImage = null;
+	
+	this.construct = function() {
+		this.ctx.fillStyle = this.skyColor;
+		this.ctx.fillRect(0, 0, this.width, this.height - this.groundHeight);
+		this.ctx.fillStyle = this.groundColor;
+		this.ctx.fillRect(0, this.height - this.groundHeight, this.width, this.height);	
+		this.ctx.fillStyle = this.postColor;
+		this.ctx.fillRect((this.width / 2) - (this.postWidth / 2),  this.height - this.groundHeight - this.postHeight, this.postWidth, this.postHeight);
+		this.backgroundImage = this.ctx.getImageData(0, 0, this.width, this.height);
+	}
+	
+	this.paint = function() {
+		this.ctx.putImageData(this.backgroundImage, 0, 0);		
+	}
+}
+
+function Slime(options) {
+	this.radius = options.radius;
+	this.color = options.color;
+	this.speed = options.speed;
+	this.jumpPeek = options.jumpPeek;
+	this.background = options.background;
+	this.positionH = options.positionH;
+	this.positionV = background.height - background.groundHeight;
+	this.ctx = options.ctx;
+	this.slimeImage = null;
+	
+	this.construct = function() {
+		this.ctx.fillStyle = this.color;
+		this.ctx.beginPath();
+		this.ctx.arc(this.positionH, this.positionV, this.radius, Math.PI, 0, false);
+		this.ctx.fill();
+		this.slimeImage = this.ctx.getImageData(this.positionH - this.radius, this.positionV - this.radius, this.radius * 2, this.radius);
+	}
+	
+	this.paint = function() {
+		this.ctx.putImageData(this.slimeImage, this.positionH - this.radius, this.positionV - this.radius);	
+	}
+}
+
+var background, playerSlime, pcSlime;
+
+function updateParams() {
+	myCanvas = document.getElementById("myCanvas");
+	myCanvas.style.left = document.getElementById("canvasLeft").value + 'px';
+	myCanvas.style.top = document.getElementById("canvasTop").value + 'px';
+	myCanvas.height = parseInt(document.getElementById("canvasHeight").value);
+	myCanvas.width = parseInt(document.getElementById("canvasWidth").value);
+
+	background = new Background({
+		width: myCanvas.width,
+		height: myCanvas.height,
+		skyColor: document.getElementById("skyColor").value,
+		groundColor: document.getElementById("groundColor").value,
+		groundHeight: parseInt(document.getElementById("groundHeight").value),
+		postColor: document.getElementById("postColor").value,
+		postWidth: parseInt(document.getElementById("postWidth").value),
+		postHeight: parseInt(document.getElementById("postHeight").value),
+		ctx: myCanvas.getContext("2d")
+	});
+	
+	background.construct();
+
+	playerSlime = new Slime({
+		radius: parseInt(document.getElementById("slimeRadius").value),
+		color: document.getElementById("playerColor").value,
+		speed: parseInt(document.getElementById("slimeSpeed").value),
+		jumpPeek: parseInt(document.getElementById("jumpPeek").value),
+		background: background,
+		positionH: background.width * .25,
+		ctx: myCanvas.getContext("2d")		
+	});
+	playerSlime.construct();
+
+	pcSlime = new Slime({
+		radius: parseInt(document.getElementById("slimeRadius").value),
+		color: document.getElementById("pcColor").value,
+		speed: parseInt(document.getElementById("slimeSpeed").value),
+		jumpPeek: parseInt(document.getElementById("jumpPeek").value),
+		background: background,
+		positionH: background.width * .75,
+		ctx: myCanvas.getContext("2d")		
+	});
+	pcSlime.construct();
+	
+	document.onkeydown = function(e) {
+		switch (e.keyCode) {
+			case 37:
+				moveLeft = true;
+				break;
+			case 38:
+				jump = true;
+				break;
+			case 39:
+				moveRight = true;
+				break;
+		}
+	};
+	
+	document.onkeyup = function(e) {
+		switch (e.keyCode) {
+			case 37:
+				moveLeft = false;
+				break;
+			case 39:
+				moveRight = false;
+				break;
+		}
+	};	
+	
+	clearInterval(positionInterval);
+	clearInterval(loopInterval);
+
+	positionInterval = setInterval("updatePositions();", slimeSpeed);
+	loopInterval = setInterval("paintAll();", oneFrameTime );	
+}
+
+function paintAll() {
+	background.paint();
+	playerSlime.paint();
+	pcSlime.paint();
+}
+
+var verticalDirection = -4;
+function updatePositions() {
+	if (moveLeft && playerSlime.positionH >= (2 + playerSlime.radius))
+		playerSlime.positionH -= 2;
+	if (moveRight && playerSlime.positionH <= ((background.width / 2 - background.postWidth / 2 - playerSlime.radius) - 2))
+		playerSlime.positionH += 2;
+	
+	if (jump) {
+		if (playerSlime.positionV >= background.height - background.groundHeight && verticalDirection > 0) {
+			jump = false;
+			verticalDirection *= -1;
+			playerSlime.PositionV = background.height - background.groundHeight;
+		}
+		else if (playerSlime.positionV <= (background.height - background.groundHeight - playerSlime.jumpPeek) && verticalDirection < 0) {
+			verticalDirection *= -1;
+			playerSlime.positionV += verticalDirection;
+		} else {
+			playerSlime.positionV += verticalDirection;		
+		}
+	}
+}
+
+</script>
+
+<body onload="updateParams();">
+<table>
+<tr><td>Left:</td><td><input type="text" id="canvasLeft" value="250"> </td></tr>
+<tr><td>Top:</td><td><input type="text" id="canvasTop" value="100"> </td></tr>
+<tr><td>Width:</td><td><input type="text" id="canvasWidth" value="1000"> </td></tr>
+<tr><td>Height: </td><td><input type="text" id="canvasHeight" value="500"> </td></tr>
+<tr><td>Sky color: </td><td><input type="text" id="skyColor" value="blue"> </td></tr>
+<tr><td>Ground color: </td><td><input type="text" id="groundColor" value="green"> </td></tr>
+<tr><td>Ground height: </td><td><input type="text" id="groundHeight" value="100"> </td></tr> 
+<tr><td>Post color: </td><td><input type="text" id="postColor" value="white"> </td></tr> 
+<tr><td>Post width: </td><td><input type="text" id="postWidth" value="10"> </td></tr> 
+<tr><td>Post height: </td><td><input type="text" id="postHeight" value="60"> </td></tr> 
+<tr><td>Slime radius: </td><td><input type="text" id="slimeRadius" value="40"> </td></tr> 
+<tr><td>Player color: </td><td><input type="text" id="playerColor" value="yellow"> </td></tr> 
+<tr><td>PC color: </td><td><input type="text" id="pcColor" value="red"> </td></tr> 
+<tr><td>Slime speed: </td><td><input type="text" id="slimeSpeed" value="1"> </td></tr> 
+<tr><td>Jump peek: </td><td><input type="text" id="jumpPeek" value="120"> </td></tr> 
+</table>
+<input type="button" value="Update" onclick="updateParams();">
+<canvas id="myCanvas"> </canvas>
+</body>
+</html>
